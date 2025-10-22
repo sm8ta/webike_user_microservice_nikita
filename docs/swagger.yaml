@@ -1,0 +1,262 @@
+basePath: /
+definitions:
+  http.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  http.UpdateUser:
+    properties:
+      date_of_birth:
+        example: "1990-01-01"
+        type: string
+      email:
+        example: new@example.com
+        type: string
+      name:
+        example: Новое имя
+        type: string
+      password:
+        example: newpassword123
+        type: string
+    type: object
+  http.UserRequest:
+    properties:
+      date_of_birth:
+        example: "1990-01-01"
+        type: string
+      email:
+        example: ivan@example.com
+        type: string
+      name:
+        example: Иван Иванов
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - date_of_birth
+    - email
+    - name
+    - password
+    type: object
+  http.errorResponse:
+    properties:
+      message:
+        example: Error
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  http.successResponse:
+    properties:
+      data:
+        type: object
+      message:
+        example: Success message
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для управления пользователями
+  title: User Microservice API
+  version: "1.1"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Вход в систему по email и паролю
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная авторизация
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "401":
+          description: Неверные учетные данные
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового пользователя
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь создан
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "409":
+          description: Email уже существует
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Удаление пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Пользователь удален
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "403":
+          description: Доступ запрещен
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить пользователя
+      tags:
+      - users
+    get:
+      description: Получение информации о пользователе по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Пользователь найден
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "403":
+          description: Доступ запрещен
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить пользователя
+      tags:
+      - users
+    put:
+      description: Обновление данных пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateUser'
+      responses:
+        "200":
+          description: Пользователь обновлен
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "403":
+          description: Доступ запрещен
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить пользователя
+      tags:
+      - users
+  /users/{id}/with-bikes:
+    get:
+      description: Получение информации о пользователе и его байках
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Пользователь с байками
+          schema:
+            $ref: '#/definitions/http.successResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить пользователя с байками
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
