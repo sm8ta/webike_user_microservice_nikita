@@ -1,5 +1,40 @@
 basePath: /
 definitions:
+  domain.User:
+    properties:
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+      role:
+        $ref: '#/definitions/domain.UserRole'
+      updated_at:
+        type: string
+    required:
+    - date_of_birth
+    - email
+    - name
+    - password
+    type: object
+  domain.UserRole:
+    enum:
+    - admin
+    - appuser
+    type: string
+    x-enum-varnames:
+    - Admin
+    - AppUser
   http.LoginRequest:
     properties:
       email:
@@ -138,7 +173,7 @@ paths:
     delete:
       description: Удаление пользователя
       parameters:
-      - description: ID пользователя
+      - description: ID юзера
         in: path
         name: id
         required: true
@@ -162,13 +197,17 @@ paths:
       tags:
       - users
     get:
+      consumes:
+      - application/json
       description: Получение информации о пользователе по ID
       parameters:
-      - description: ID пользователя
+      - description: ID юзера
         in: path
         name: id
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: Пользователь найден
@@ -194,7 +233,7 @@ paths:
     put:
       description: Обновление данных пользователя
       parameters:
-      - description: ID пользователя
+      - description: ID юзера
         in: path
         name: id
         required: true
@@ -209,7 +248,12 @@ paths:
         "200":
           description: Пользователь обновлен
           schema:
-            $ref: '#/definitions/http.successResponse'
+            allOf:
+            - $ref: '#/definitions/http.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.User'
+              type: object
         "400":
           description: Неверный запрос
           schema:
@@ -231,7 +275,7 @@ paths:
     get:
       description: Получение информации о пользователе и его байках
       parameters:
-      - description: ID пользователя
+      - description: ID юзера
         in: path
         name: id
         required: true

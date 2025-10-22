@@ -7,25 +7,27 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
-	_ "webike_services/webike_User-microservice_Nikita/docs"
-	"webike_services/webike_User-microservice_Nikita/internal/adapter/handler/http"
-	handlers "webike_services/webike_User-microservice_Nikita/internal/adapter/handler/http"
-	"webike_services/webike_User-microservice_Nikita/internal/adapter/logger"
-	"webike_services/webike_User-microservice_Nikita/internal/adapter/prometheus"
-	redis "webike_services/webike_User-microservice_Nikita/internal/adapter/redis"
-	"webike_services/webike_User-microservice_Nikita/internal/app"
+	_ "github.com/sm8ta/webike_user_microservice_nikita/docs"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
+	handlers "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/logger"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/prometheus"
+	redis "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/redis"
 
+	"github.com/go-openapi/strfmt"
 	redisClient "github.com/redis/go-redis/v9"
 
-	"webike_services/webike_User-microservice_Nikita/internal/adapter/postgres/repository"
-	"webike_services/webike_User-microservice_Nikita/internal/config"
-	"webike_services/webike_User-microservice_Nikita/internal/core/services"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/postgres/repository"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/config"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/services"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
+
+	httptransport "github.com/go-openapi/runtime/client"
+	bikeclient "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
 )
 
 // @title User Microservice API
@@ -97,27 +99,14 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, loggerAdapter, metrics)
 	userService := services.NewUserService(userRepo, loggerAdapter, validate, cacheAdapter)
 
-	grpcPort, err := strconv.Atoi(cfg.GRPC.Port)
-	if err != nil {
-		log.Fatalf("Invalid GRPC_PORT: %v", err)
-	}
-
-	application, err := app.New(
-		ctx,
-		loggerAdapter,
-		userService,
-		grpcPort,
-		cfg.BikeService.Address,
+	transport := httptransport.New(
+		cfg.BikeService.URL, // "localhost:8081"
+		"/",                 // base path
+		[]string{"http"},    // схема
 	)
-	if err != nil {
-		log.Fatalf("Failed to initialize app: %v", err)
-	}
-	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics, application.BikeClient)
+	bikeClient := bikeclient.New(transport, strfmt.Default)
 
-	// Start gRPC server
-	go func() {
-		application.GRPCServer.MustRun()
-	}()
+	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics, bikeClient)
 
 	// Init router
 	router, err := http.NewRouter(
@@ -150,6 +139,5 @@ func main() {
 	<-stop
 
 	loggerAdapter.Info("Shut", nil)
-	application.Stop()
 	loggerAdapter.Info("Application stopped", nil)
 }

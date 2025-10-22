@@ -3,7 +3,7 @@ package http
 import (
 	"net/http"
 	"time"
-	"webike_services/webike_User-microservice_Nikita/internal/core/ports"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 
 	"github.com/gin-gonic/gin"
 )

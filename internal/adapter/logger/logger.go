@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	"webike_services/webike_User-microservice_Nikita/internal/core/ports"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 )
 
 const (

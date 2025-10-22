@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"webike_services/webike_User-microservice_Nikita/internal/core/domain"
-	"webike_services/webike_User-microservice_Nikita/internal/core/ports"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 
 	"golang.org/x/crypto/bcrypt"
 )

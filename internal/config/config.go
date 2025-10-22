@@ -13,7 +13,6 @@ type (
 		DB          *DB
 		HTTP        *HTTP
 		Redis       *Redis
-		GRPC        *GRPC
 		BikeService *BikeService
 	}
 
@@ -47,12 +46,8 @@ type (
 		Password string
 	}
 
-	GRPC struct {
-		Port string
-	}
-
 	BikeService struct {
-		Address string
+		URL string
 	}
 )
 
@@ -94,12 +89,8 @@ func New() (*Container, error) {
 		Password: os.Getenv("REDIS_PASSWORD"),
 	}
 
-	grpc := &GRPC{
-		Port: os.Getenv("GRPC_PORT"),
-	}
-
 	bikeService := &BikeService{
-		Address: os.Getenv("BIKE_SERVICE_ADDRESS"),
+		URL: os.Getenv("BIKE_SERVICE_URL"),
 	}
 
 	return &Container{
@@ -108,7 +99,6 @@ func New() (*Container, error) {
 		DB:          db,
 		HTTP:        http,
 		Redis:       redis,
-		GRPC:        grpc,
 		BikeService: bikeService,
 	}, nil
 }
