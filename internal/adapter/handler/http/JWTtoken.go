@@ -3,8 +3,8 @@ package http
 import (
 	"errors"
 	"time"
-	"webike_services/webike_User-microservice_Nikita/internal/core/domain"
-	"webike_services/webike_User-microservice_Nikita/internal/core/ports"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
