@@ -194,19 +194,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь обновлен",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/http.successResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.User"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/http.successResponse"
                         }
                     },
                     "400": {
@@ -316,55 +304,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.User": {
-            "type": "object",
-            "required": [
-                "date_of_birth",
-                "email",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "date_of_birth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 2
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 8
-                },
-                "role": {
-                    "$ref": "#/definitions/domain.UserRole"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.UserRole": {
-            "type": "string",
-            "enum": [
-                "admin",
-                "appuser"
-            ],
-            "x-enum-varnames": [
-                "Admin",
-                "AppUser"
-            ]
-        },
         "http.LoginRequest": {
             "type": "object",
             "required": [

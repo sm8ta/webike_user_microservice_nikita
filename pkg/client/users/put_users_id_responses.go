@@ -6,16 +6,13 @@ package users
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"encoding/json"
 	stderrors "errors"
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/sm8ta/webike_user_microservice_nikita/models"
 )
@@ -68,7 +65,7 @@ PutUsersIDOK describes a response with status code 200, with default header valu
 Пользователь обновлен
 */
 type PutUsersIDOK struct {
-	Payload *PutUsersIDOKBody
+	Payload *models.HTTPSuccessResponse
 }
 
 // IsSuccess returns true when this put users Id o k response has a 2xx status code
@@ -111,13 +108,13 @@ func (o *PutUsersIDOK) String() string {
 	return fmt.Sprintf("[PUT /users/{id}][%d] putUsersIdOK %s", 200, payload)
 }
 
-func (o *PutUsersIDOK) GetPayload() *PutUsersIDOKBody {
+func (o *PutUsersIDOK) GetPayload() *models.HTTPSuccessResponse {
 	return o.Payload
 }
 
 func (o *PutUsersIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(PutUsersIDOKBody)
+	o.Payload = new(models.HTTPSuccessResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
@@ -334,166 +331,5 @@ func (o *PutUsersIDForbidden) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*
-PutUsersIDOKBody put users ID o k body
-swagger:model PutUsersIDOKBody
-*/
-type PutUsersIDOKBody struct {
-	models.HTTPSuccessResponse
-
-	// data
-	Data *models.DomainUser `json:"data,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object from a JSON structure
-func (o *PutUsersIDOKBody) UnmarshalJSON(raw []byte) error {
-	// PutUsersIDOKBodyAO0
-	var putUsersIDOKBodyAO0 models.HTTPSuccessResponse
-	if err := swag.ReadJSON(raw, &putUsersIDOKBodyAO0); err != nil {
-		return err
-	}
-	o.HTTPSuccessResponse = putUsersIDOKBodyAO0
-
-	// PutUsersIDOKBodyAO1
-	var dataPutUsersIDOKBodyAO1 struct {
-		Data *models.DomainUser `json:"data,omitempty"`
-	}
-	if err := swag.ReadJSON(raw, &dataPutUsersIDOKBodyAO1); err != nil {
-		return err
-	}
-
-	o.Data = dataPutUsersIDOKBodyAO1.Data
-
-	return nil
-}
-
-// MarshalJSON marshals this object to a JSON structure
-func (o PutUsersIDOKBody) MarshalJSON() ([]byte, error) {
-	_parts := make([][]byte, 0, 2)
-
-	putUsersIDOKBodyAO0, err := swag.WriteJSON(o.HTTPSuccessResponse)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, putUsersIDOKBodyAO0)
-	var dataPutUsersIDOKBodyAO1 struct {
-		Data *models.DomainUser `json:"data,omitempty"`
-	}
-
-	dataPutUsersIDOKBodyAO1.Data = o.Data
-
-	jsonDataPutUsersIDOKBodyAO1, errPutUsersIDOKBodyAO1 := swag.WriteJSON(dataPutUsersIDOKBodyAO1)
-	if errPutUsersIDOKBodyAO1 != nil {
-		return nil, errPutUsersIDOKBodyAO1
-	}
-	_parts = append(_parts, jsonDataPutUsersIDOKBodyAO1)
-	return swag.ConcatJSON(_parts...), nil
-}
-
-// Validate validates this put users ID o k body
-func (o *PutUsersIDOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	// validation for a type composition with models.HTTPSuccessResponse
-	if err := o.HTTPSuccessResponse.Validate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateData(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PutUsersIDOKBody) validateData(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Data) { // not required
-		return nil
-	}
-
-	if o.Data != nil {
-		if err := o.Data.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
-				return ve.ValidateName("putUsersIdOK" + "." + "data")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
-				return ce.ValidateName("putUsersIdOK" + "." + "data")
-			}
-
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this put users ID o k body based on the context it is used
-func (o *PutUsersIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	// validation for a type composition with models.HTTPSuccessResponse
-	if err := o.HTTPSuccessResponse.ContextValidate(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateData(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PutUsersIDOKBody) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
-	if o.Data != nil {
-
-		if swag.IsZero(o.Data) { // not required
-			return nil
-		}
-
-		if err := o.Data.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
-				return ve.ValidateName("putUsersIdOK" + "." + "data")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
-				return ce.ValidateName("putUsersIdOK" + "." + "data")
-			}
-
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PutUsersIDOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PutUsersIDOKBody) UnmarshalBinary(b []byte) error {
-	var res PutUsersIDOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
