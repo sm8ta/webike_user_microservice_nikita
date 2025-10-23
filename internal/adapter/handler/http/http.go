@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/services"
@@ -202,7 +203,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
 // @Param request body UpdateUser true "Данные для обновления"
-// @Success 200 {object} successResponse{data=domain.User} "Пользователь обновлен"
+// @Success 200 {object} successResponse "Пользователь обновлен"
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
