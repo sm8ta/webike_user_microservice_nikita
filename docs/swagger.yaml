@@ -231,33 +231,6 @@ paths:
       summary: Обновить пользователя
       tags:
       - users
-  /users/{id}/with-bikes:
-    get:
-      description: Получение информации о пользователе и его байках
-      parameters:
-      - description: ID юзера
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Пользователь с байками
-          schema:
-            $ref: '#/definitions/http.successResponse'
-        "401":
-          description: Не авторизован
-          schema:
-            $ref: '#/definitions/http.errorResponse'
-        "404":
-          description: Пользователь не найден
-          schema:
-            $ref: '#/definitions/http.errorResponse'
-      security:
-      - BearerAuth: []
-      summary: Получить пользователя с байками
-      tags:
-      - users
 securityDefinitions:
   BearerAuth:
     in: header

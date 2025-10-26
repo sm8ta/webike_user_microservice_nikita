@@ -252,49 +252,6 @@
                     }
                 }
             }
-        },
-        "/users/{id}/with-bikes": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Получение информации о пользователе и его байках",
-                "tags": [
-                    "users"
-                ],
-                "summary": "Получить пользователя с байками",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID юзера",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Пользователь с байками",
-                        "schema": {
-                            "$ref": "#/definitions/http.successResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Не авторизован",
-                        "schema": {
-                            "$ref": "#/definitions/http.errorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "$ref": "#/definitions/http.errorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {

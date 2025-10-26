@@ -2,19 +2,11 @@ package http
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/services"
-
-	"github.com/go-openapi/runtime"
-	httptransport "github.com/go-openapi/runtime/client"
-	bikeclient "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
-	"github.com/sm8ta/webike_bike_microservice_nikita/pkg/client/bikes"
-
-	"github.com/sm8ta/webike_bike_microservice_nikita/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,7 +17,6 @@ type UserHandler struct {
 	logger       ports.LoggerPort
 	tokenService *JWTTokenService
 	metrics      ports.MetricsPort
-	bikeClient   *bikeclient.BikeService
 }
 
 type UserRequest struct {
@@ -43,11 +34,10 @@ type UpdateUser struct {
 }
 
 type UserWithBikesResponse struct {
-	ID          string               `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
-	Name        string               `json:"name" example:"Иван Иванов"`
-	Email       string               `json:"email" example:"ivan@example.com"`
-	DateOfBirth string               `json:"date_of_birth" example:"1990-01-01"`
-	Bikes       []*models.DomainBike `json:"bikes"`
+	ID          string `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Name        string `json:"name" example:"Иван Иванов"`
+	Email       string `json:"email" example:"ivan@example.com"`
+	DateOfBirth string `json:"date_of_birth" example:"1990-01-01"`
 }
 
 func NewUserHandler(
@@ -55,14 +45,12 @@ func NewUserHandler(
 	logger ports.LoggerPort,
 	tokenService *JWTTokenService,
 	metrics ports.MetricsPort,
-	bikeClient *bikeclient.BikeService,
 ) *UserHandler {
 	return &UserHandler{
 		userService:  userService,
 		logger:       logger,
 		tokenService: tokenService,
 		metrics:      metrics,
-		bikeClient:   bikeClient,
 	}
 }
 
@@ -76,7 +64,7 @@ func NewUserHandler(
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 409 {object} errorResponse "Email уже существует"
 // @Router /register [post]
-func (h *UserHandler) RegisterUser(c *gin.Context) {
+func (h *UserHandler) Register(c *gin.Context) {
 	start := time.Now()
 	defer func() {
 		h.metrics.RecordMetrics(c, start)
@@ -347,6 +335,8 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	newSuccessResponse(c, http.StatusOK, "User deleted successfully", nil)
 }
 
+/*
+
 // @Summary Получить пользователя с байками
 // @Description Получение информации о пользователе и его байках
 // @Tags users
@@ -384,7 +374,6 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 		return
 	}
 
-	// Получаем юзера
 	user, err := h.userService.GetUser(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Failed to get user", map[string]interface{}{
@@ -395,11 +384,9 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 		return
 	}
 
-	// Вызов Bike-сервиса через HTTP клиент
 	params := bikes.NewGetBikesMyParams()
 	params.Context = c.Request.Context()
 
-	// Подготовка авторизации
 	authHeader := c.GetHeader("Authorization")
 	var authInfo runtime.ClientAuthInfoWriter
 	if authHeader != "" {
@@ -430,3 +417,5 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 
 	newSuccessResponse(c, http.StatusOK, "User with bikes found", response)
 }
+
+*/

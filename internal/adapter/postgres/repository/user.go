@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 
 	"github.com/google/uuid"

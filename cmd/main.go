@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
 	_ "github.com/sm8ta/webike_user_microservice_nikita/docs"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
 	handlers "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
@@ -15,7 +16,6 @@ import (
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/prometheus"
 	redis "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/redis"
 
-	"github.com/go-openapi/strfmt"
 	redisClient "github.com/redis/go-redis/v9"
 
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/postgres/repository"
@@ -25,9 +25,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
-
-	httptransport "github.com/go-openapi/runtime/client"
-	bikeclient "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
 )
 
 // @title User Microservice API
@@ -99,14 +96,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, loggerAdapter, metrics)
 	userService := services.NewUserService(userRepo, loggerAdapter, validate, cacheAdapter)
 
-	transport := httptransport.New(
-		cfg.BikeService.URL, // "localhost:8081"
-		"/",                 // base path
-		[]string{"http"},    // схема
-	)
-	bikeClient := bikeclient.New(transport, strfmt.Default)
-
-	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics, bikeClient)
+	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics)
 
 	// Init router
 	router, err := http.NewRouter(

@@ -14,7 +14,7 @@ import (
 	"github.com/sm8ta/webike_user_microservice_nikita/pkg/client/users"
 )
 
-// Default bike service HTTP client.
+// Default user microservice HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -29,14 +29,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http"}
 
-// NewHTTPClient creates a new bike service HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *BikeService {
+// NewHTTPClient creates a new user microservice HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *UserMicroservice {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new bike service HTTP client,
+// NewHTTPClientWithConfig creates a new user microservice HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *BikeService {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *UserMicroservice {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -47,14 +47,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Bik
 	return New(transport, formats)
 }
 
-// New creates a new bike service client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *BikeService {
+// New creates a new user microservice client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *UserMicroservice {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(BikeService)
+	cli := new(UserMicroservice)
 	cli.Transport = transport
 	cli.Auth = auth.New(transport, formats)
 	cli.Users = users.New(transport, formats)
@@ -100,8 +100,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// BikeService is a client for bike service
-type BikeService struct {
+// UserMicroservice is a client for user microservice
+type UserMicroservice struct {
 	Auth auth.ClientService
 
 	Users users.ClientService
@@ -110,7 +110,7 @@ type BikeService struct {
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *BikeService) SetTransport(transport runtime.ClientTransport) {
+func (c *UserMicroservice) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Auth.SetTransport(transport)
 	c.Users.SetTransport(transport)

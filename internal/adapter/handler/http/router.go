@@ -2,6 +2,7 @@ package http
 
 import (
 	"strings"
+
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/config"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 
@@ -42,7 +43,7 @@ func NewRouter(
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// Routers without auth
-	router.POST("/register", userHandler.RegisterUser)
+	router.POST("/register", userHandler.Register)
 	router.POST("/login", authHandler.Login)
 
 	// Routers with auth
@@ -51,7 +52,7 @@ func NewRouter(
 	{
 		users.GET("/:id", userHandler.GetUser)
 		users.PUT("/:id", userHandler.UpdateUser)
-		users.GET("/:id/with-bikes", userHandler.GetUserWithBikes)
+		//	users.GET("/:id/with-bikes", userHandler.GetUserWithBikes) //
 		users.DELETE("/:id", userHandler.DeleteUser)
 	}
 
