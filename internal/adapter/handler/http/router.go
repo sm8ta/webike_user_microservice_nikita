@@ -50,9 +50,9 @@ func NewRouter(
 	users := router.Group("/users")
 	users.Use(AuthMiddleware(tokenService))
 	{
+		/* users.GET("/:id/with-bikes", userHandler.GetUserWithBikes) */
 		users.GET("/:id", userHandler.GetUser)
 		users.PUT("/:id", userHandler.UpdateUser)
-		//	users.GET("/:id/with-bikes", userHandler.GetUserWithBikes)
 		users.DELETE("/:id", userHandler.DeleteUser)
 	}
 

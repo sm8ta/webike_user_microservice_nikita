@@ -9,9 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/go-openapi/strfmt"
-	bike_client "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
 	_ "github.com/sm8ta/webike_user_microservice_nikita/docs"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
 	handlers "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
@@ -46,6 +43,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
+	// Set logger
+	loggerAdapter := logger.NewLoggerAdapter(cfg.App.Env)
+	loggerAdapter.Info("Starting the application", map[string]interface{}{
+		"app": cfg.App.Name,
+		"env": cfg.App.Env,
+	})
+
 	// Set redis
 	redisConn := redisClient.NewClient(&redisClient.Options{
 		Addr:     cfg.Redis.Address,
@@ -57,12 +61,6 @@ func main() {
 	if _, err := redisConn.Ping(ctx).Result(); err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
-	// Set logger
-	loggerAdapter := logger.NewLoggerAdapter(cfg.App.Env)
-	loggerAdapter.Info("Starting the application", map[string]interface{}{
-		"app": cfg.App.Name,
-		"env": cfg.App.Env,
-	})
 
 	// Connect DB
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -92,10 +90,11 @@ func main() {
 	// Observability
 	metrics := prometheus.NewPrometheusAdapter()
 
-	// User service client init
-	transport := httptransport.New("bike_microservice_container:8081", "", []string{"http"})
-	bikeClient := bike_client.New(transport, strfmt.Default)
-
+	/*
+		// User service client init
+		transport := httptransport.New(cfg.BikeService.URL, "", []string{"http"})
+		bikeClient := bike_client.New(transport, strfmt.Default)
+	*/
 	// User
 	userRepo := repository.NewUserRepository(db)
 	tokenService := handlers.NewJWTTokenService(cfg.Token.Secret, cfg.Token.Duration, loggerAdapter)
@@ -103,7 +102,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, loggerAdapter, metrics)
 	userService := services.NewUserService(userRepo, loggerAdapter, validate, cacheAdapter)
 
-	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics, bikeClient)
+	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics)
 
 	// Init router
 	router, err := http.NewRouter(

@@ -345,7 +345,7 @@ type PutUsersIDOKBody struct {
 	models.HTTPSuccessResponse
 
 	// data
-	Data *models.HTTPUserDTO `json:"data,omitempty"`
+	Data *models.DomainUser `json:"data,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -359,7 +359,7 @@ func (o *PutUsersIDOKBody) UnmarshalJSON(raw []byte) error {
 
 	// PutUsersIDOKBodyAO1
 	var dataPutUsersIDOKBodyAO1 struct {
-		Data *models.HTTPUserDTO `json:"data,omitempty"`
+		Data *models.DomainUser `json:"data,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataPutUsersIDOKBodyAO1); err != nil {
 		return err
@@ -380,7 +380,7 @@ func (o PutUsersIDOKBody) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, putUsersIDOKBodyAO0)
 	var dataPutUsersIDOKBodyAO1 struct {
-		Data *models.HTTPUserDTO `json:"data,omitempty"`
+		Data *models.DomainUser `json:"data,omitempty"`
 	}
 
 	dataPutUsersIDOKBodyAO1.Data = o.Data

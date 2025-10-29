@@ -1,5 +1,40 @@
 basePath: /
 definitions:
+  domain.User:
+    properties:
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+      role:
+        $ref: '#/definitions/domain.UserRole'
+      updated_at:
+        type: string
+    required:
+    - date_of_birth
+    - email
+    - name
+    - password
+    type: object
+  domain.UserRole:
+    enum:
+    - admin
+    - appuser
+    type: string
+    x-enum-varnames:
+    - Admin
+    - AppUser
   http.LoginRequest:
     properties:
       email:
@@ -25,18 +60,6 @@ definitions:
         type: string
       password:
         example: newpassword123
-        type: string
-    type: object
-  http.UserDTO:
-    properties:
-      email:
-        example: ivan@example.com
-        type: string
-      name:
-        example: Иван Иванов
-        type: string
-      user_id:
-        example: 12bd787e-05d0-44eb-97e2-8f10e3a564e2
         type: string
     type: object
   http.UserRequest:
@@ -189,12 +212,7 @@ paths:
         "200":
           description: Пользователь найден
           schema:
-            allOf:
-            - $ref: '#/definitions/http.successResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/http.UserDTO'
-              type: object
+            $ref: '#/definitions/http.successResponse'
         "401":
           description: Не авторизован
           schema:
@@ -234,7 +252,7 @@ paths:
             - $ref: '#/definitions/http.successResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/http.UserDTO'
+                  $ref: '#/definitions/domain.User'
               type: object
         "400":
           description: Неверный запрос
