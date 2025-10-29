@@ -27,6 +27,18 @@ definitions:
         example: newpassword123
         type: string
     type: object
+  http.UserDTO:
+    properties:
+      email:
+        example: ivan@example.com
+        type: string
+      name:
+        example: Иван Иванов
+        type: string
+      user_id:
+        example: 12bd787e-05d0-44eb-97e2-8f10e3a564e2
+        type: string
+    type: object
   http.UserRequest:
     properties:
       date_of_birth:
@@ -177,7 +189,12 @@ paths:
         "200":
           description: Пользователь найден
           schema:
-            $ref: '#/definitions/http.successResponse'
+            allOf:
+            - $ref: '#/definitions/http.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/http.UserDTO'
+              type: object
         "401":
           description: Не авторизован
           schema:
@@ -213,7 +230,12 @@ paths:
         "200":
           description: Пользователь обновлен
           schema:
-            $ref: '#/definitions/http.successResponse'
+            allOf:
+            - $ref: '#/definitions/http.successResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/http.UserDTO'
+              type: object
         "400":
           description: Неверный запрос
           schema:

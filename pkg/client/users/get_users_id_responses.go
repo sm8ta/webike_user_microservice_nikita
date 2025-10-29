@@ -6,13 +6,16 @@ package users
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	stderrors "errors"
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/sm8ta/webike_user_microservice_nikita/models"
 )
@@ -65,7 +68,7 @@ GetUsersIDOK describes a response with status code 200, with default header valu
 Пользователь найден
 */
 type GetUsersIDOK struct {
-	Payload *models.HTTPSuccessResponse
+	Payload *GetUsersIDOKBody
 }
 
 // IsSuccess returns true when this get users Id o k response has a 2xx status code
@@ -108,13 +111,13 @@ func (o *GetUsersIDOK) String() string {
 	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK %s", 200, payload)
 }
 
-func (o *GetUsersIDOK) GetPayload() *models.HTTPSuccessResponse {
+func (o *GetUsersIDOK) GetPayload() *GetUsersIDOKBody {
 	return o.Payload
 }
 
 func (o *GetUsersIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.HTTPSuccessResponse)
+	o.Payload = new(GetUsersIDOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
@@ -331,5 +334,166 @@ func (o *GetUsersIDNotFound) readResponse(response runtime.ClientResponse, consu
 		return err
 	}
 
+	return nil
+}
+
+/*
+GetUsersIDOKBody get users ID o k body
+swagger:model GetUsersIDOKBody
+*/
+type GetUsersIDOKBody struct {
+	models.HTTPSuccessResponse
+
+	// data
+	Data *models.HTTPUserDTO `json:"data,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (o *GetUsersIDOKBody) UnmarshalJSON(raw []byte) error {
+	// GetUsersIDOKBodyAO0
+	var getUsersIDOKBodyAO0 models.HTTPSuccessResponse
+	if err := swag.ReadJSON(raw, &getUsersIDOKBodyAO0); err != nil {
+		return err
+	}
+	o.HTTPSuccessResponse = getUsersIDOKBodyAO0
+
+	// GetUsersIDOKBodyAO1
+	var dataGetUsersIDOKBodyAO1 struct {
+		Data *models.HTTPUserDTO `json:"data,omitempty"`
+	}
+	if err := swag.ReadJSON(raw, &dataGetUsersIDOKBodyAO1); err != nil {
+		return err
+	}
+
+	o.Data = dataGetUsersIDOKBodyAO1.Data
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (o GetUsersIDOKBody) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 2)
+
+	getUsersIDOKBodyAO0, err := swag.WriteJSON(o.HTTPSuccessResponse)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, getUsersIDOKBodyAO0)
+	var dataGetUsersIDOKBodyAO1 struct {
+		Data *models.HTTPUserDTO `json:"data,omitempty"`
+	}
+
+	dataGetUsersIDOKBodyAO1.Data = o.Data
+
+	jsonDataGetUsersIDOKBodyAO1, errGetUsersIDOKBodyAO1 := swag.WriteJSON(dataGetUsersIDOKBodyAO1)
+	if errGetUsersIDOKBodyAO1 != nil {
+		return nil, errGetUsersIDOKBodyAO1
+	}
+	_parts = append(_parts, jsonDataGetUsersIDOKBodyAO1)
+	return swag.ConcatJSON(_parts...), nil
+}
+
+// Validate validates this get users ID o k body
+func (o *GetUsersIDOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	// validation for a type composition with models.HTTPSuccessResponse
+	if err := o.HTTPSuccessResponse.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateData(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetUsersIDOKBody) validateData(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Data) { // not required
+		return nil
+	}
+
+	if o.Data != nil {
+		if err := o.Data.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getUsersIdOK" + "." + "data")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getUsersIdOK" + "." + "data")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get users ID o k body based on the context it is used
+func (o *GetUsersIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	// validation for a type composition with models.HTTPSuccessResponse
+	if err := o.HTTPSuccessResponse.ContextValidate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateData(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetUsersIDOKBody) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Data != nil {
+
+		if swag.IsZero(o.Data) { // not required
+			return nil
+		}
+
+		if err := o.Data.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getUsersIdOK" + "." + "data")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getUsersIdOK" + "." + "data")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetUsersIDOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetUsersIDOKBody) UnmarshalBinary(b []byte) error {
+	var res GetUsersIDOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

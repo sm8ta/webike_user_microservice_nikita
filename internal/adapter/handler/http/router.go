@@ -52,7 +52,7 @@ func NewRouter(
 	{
 		users.GET("/:id", userHandler.GetUser)
 		users.PUT("/:id", userHandler.UpdateUser)
-		//	users.GET("/:id/with-bikes", userHandler.GetUserWithBikes) //
+		//	users.GET("/:id/with-bikes", userHandler.GetUserWithBikes)
 		users.DELETE("/:id", userHandler.DeleteUser)
 	}
 

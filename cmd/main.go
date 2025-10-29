@@ -9,6 +9,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
+	bike_client "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
 	_ "github.com/sm8ta/webike_user_microservice_nikita/docs"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
 	handlers "github.com/sm8ta/webike_user_microservice_nikita/internal/adapter/handler/http"
@@ -89,6 +92,10 @@ func main() {
 	// Observability
 	metrics := prometheus.NewPrometheusAdapter()
 
+	// User service client init
+	transport := httptransport.New("bike_microservice_container:8081", "", []string{"http"})
+	bikeClient := bike_client.New(transport, strfmt.Default)
+
 	// User
 	userRepo := repository.NewUserRepository(db)
 	tokenService := handlers.NewJWTTokenService(cfg.Token.Secret, cfg.Token.Duration, loggerAdapter)
@@ -96,7 +103,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, loggerAdapter, metrics)
 	userService := services.NewUserService(userRepo, loggerAdapter, validate, cacheAdapter)
 
-	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics)
+	userHandler := handlers.NewUserHandler(userService, loggerAdapter, tokenService, metrics, bikeClient)
 
 	// Init router
 	router, err := http.NewRouter(

@@ -13,6 +13,7 @@ const (
 	AppUser UserRole = "appuser"
 )
 
+// swagger:model domain.User
 type User struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name" validate:"required,min=2,max=50"`

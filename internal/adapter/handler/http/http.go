@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+
+	bike_client "github.com/sm8ta/webike_bike_microservice_nikita/pkg/client"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/services"
-
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -17,6 +18,7 @@ type UserHandler struct {
 	logger       ports.LoggerPort
 	tokenService *JWTTokenService
 	metrics      ports.MetricsPort
+	bikeClient   *bike_client.BikeMicroservice
 }
 
 type UserRequest struct {
@@ -33,11 +35,26 @@ type UpdateUser struct {
 	Password    *string `json:"password,omitempty" example:"newpassword123"`
 }
 
+type UserDTO struct {
+	UserID string `json:"user_id" example:"12bd787e-05d0-44eb-97e2-8f10e3a564e2"`
+	Name   string `json:"name" example:"Иван Иванов"`
+	Email  string `json:"email" example:"ivan@example.com"`
+}
+
 type UserWithBikesResponse struct {
-	ID          string `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
-	Name        string `json:"name" example:"Иван Иванов"`
-	Email       string `json:"email" example:"ivan@example.com"`
-	DateOfBirth string `json:"date_of_birth" example:"1990-01-01"`
+	ID          string      `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Name        string      `json:"name" example:"Иван Иванов"`
+	Email       string      `json:"email" example:"ivan@example.com"`
+	DateOfBirth string      `json:"date_of_birth" example:"1990-01-01"`
+	Bikes       interface{} `json:"bikes,omitempty"`
+}
+
+func toUserDTO(user *domain.User) UserDTO {
+	return UserDTO{
+		UserID: user.ID.String(),
+		Name:   user.Name,
+		Email:  user.Email,
+	}
 }
 
 func NewUserHandler(
@@ -45,12 +62,14 @@ func NewUserHandler(
 	logger ports.LoggerPort,
 	tokenService *JWTTokenService,
 	metrics ports.MetricsPort,
+	bikeClient *bike_client.BikeMicroservice,
 ) *UserHandler {
 	return &UserHandler{
 		userService:  userService,
 		logger:       logger,
 		tokenService: tokenService,
 		metrics:      metrics,
+		bikeClient:   bikeClient,
 	}
 }
 
@@ -138,7 +157,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
-// @Success 200 {object} successResponse "Пользователь найден"
+// @Success 200 {object} successResponse{data=UserDTO} "Пользователь найден"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
 // @Failure 404 {object} errorResponse "Пользователь не найден"
@@ -174,15 +193,15 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 	user, err := h.userService.GetUser(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Failed to get user", map[string]interface{}{
-			"error": err.Error(),
-			"id":    userID,
+			"error":   err.Error(),
+			"user_id": userID,
 		})
 		newErrorResponse(c, http.StatusNotFound, "User not found")
 		return
 	}
 
-	user.Password = ""
-	newSuccessResponse(c, http.StatusOK, "User found", user)
+	userDTO := toUserDTO(user)
+	newSuccessResponse(c, http.StatusOK, "User found", userDTO)
 }
 
 // @Summary Обновить пользователя
@@ -191,7 +210,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
 // @Param request body UpdateUser true "Данные для обновления"
-// @Success 200 {object} successResponse "Пользователь обновлен"
+// @Success 200 {object} successResponse{data=UserDTO} "Пользователь обновлен"
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
@@ -267,8 +286,8 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 			return
 		}
 		h.logger.Error("Failed to update user", map[string]interface{}{
-			"error": err.Error(),
-			"id":    userID,
+			"error":   err.Error(),
+			"user_id": userID,
 		})
 		newErrorResponse(c, http.StatusInternalServerError, "Update failed")
 		return
@@ -278,8 +297,8 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		"user_id": userID,
 	})
 
-	updatedUser.Password = ""
-	newSuccessResponse(c, http.StatusOK, "User updated successfully", updatedUser)
+	userDTO := toUserDTO(updatedUser)
+	newSuccessResponse(c, http.StatusOK, "User updated successfully", userDTO)
 }
 
 // @Summary Удалить пользователя
@@ -321,8 +340,8 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	err := h.userService.DeleteUser(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Failed to delete user", map[string]interface{}{
-			"error": err.Error(),
-			"id":    userID,
+			"error":   err.Error(),
+			"user_id": userID,
 		})
 		newErrorResponse(c, http.StatusInternalServerError, "Delete failed")
 		return
@@ -377,8 +396,8 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 	user, err := h.userService.GetUser(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Failed to get user", map[string]interface{}{
-			"error": err.Error(),
-			"id":    userID,
+			"error":   err.Error(),
+			"user_id": userID,
 		})
 		newErrorResponse(c, http.StatusNotFound, "User not found")
 		return
@@ -396,15 +415,15 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 
 	bikesResp, err := h.bikeClient.Bikes.GetBikesMy(params, authInfo)
 
-	var bikesList []*models.DomainBike
+	var bikes interface{}
 	if err != nil {
 		h.logger.Warn("Failed to get bikes from Bike service", map[string]interface{}{
 			"error":   err.Error(),
 			"user_id": userID,
 		})
-		bikesList = []*models.DomainBike{}
+		bikes = nil
 	} else {
-		bikesList = bikesResp.Payload.Data
+		bikes = bikesResp.Payload
 	}
 
 	response := UserWithBikesResponse{
@@ -412,10 +431,9 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 		Name:        user.Name,
 		Email:       user.Email,
 		DateOfBirth: user.DateOfBirth,
-		Bikes:       bikesList,
+		Bikes:       bikes,
 	}
 
 	newSuccessResponse(c, http.StatusOK, "User with bikes found", response)
 }
-
 */

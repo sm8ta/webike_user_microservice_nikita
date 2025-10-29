@@ -138,7 +138,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь найден",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/http.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/http.UserDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {
@@ -194,7 +206,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь обновлен",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/http.successResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/http.UserDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -296,6 +320,23 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "newpassword123"
+                }
+            }
+        },
+        "http.UserDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "ivan@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Иван Иванов"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "12bd787e-05d0-44eb-97e2-8f10e3a564e2"
                 }
             }
         },
