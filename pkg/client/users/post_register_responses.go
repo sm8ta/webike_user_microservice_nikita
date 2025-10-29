@@ -59,7 +59,7 @@ PostRegisterCreated describes a response with status code 201, with default head
 Пользователь создан
 */
 type PostRegisterCreated struct {
-	Payload *models.HTTPSuccessResponse
+	Payload *models.HTTPRegisterResponse
 }
 
 // IsSuccess returns true when this post register created response has a 2xx status code
@@ -102,13 +102,13 @@ func (o *PostRegisterCreated) String() string {
 	return fmt.Sprintf("[POST /register][%d] postRegisterCreated %s", 201, payload)
 }
 
-func (o *PostRegisterCreated) GetPayload() *models.HTTPSuccessResponse {
+func (o *PostRegisterCreated) GetPayload() *models.HTTPRegisterResponse {
 	return o.Payload
 }
 
 func (o *PostRegisterCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.HTTPSuccessResponse)
+	o.Payload = new(models.HTTPRegisterResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {

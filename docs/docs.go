@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешная авторизация",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "$ref": "#/definitions/http.LoginResponse"
                         }
                     },
                     "400": {
@@ -89,7 +89,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Пользователь создан",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "$ref": "#/definitions/http.RegisterResponse"
                         }
                     },
                     "400": {
@@ -138,7 +138,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь найден",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "$ref": "#/definitions/http.GetUserResponse"
                         }
                     },
                     "401": {
@@ -194,19 +194,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь обновлен",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/http.successResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.User"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/http.UpdateUserResponse"
                         }
                     },
                     "400": {
@@ -253,7 +241,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь удален",
                         "schema": {
-                            "$ref": "#/definitions/http.successResponse"
+                            "$ref": "#/definitions/http.DeleteUserResponse"
                         }
                     },
                     "401": {
@@ -273,14 +261,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.User": {
-            "type": "object",
-            "required": [
-                "date_of_birth",
-                "email",
-                "name",
-                "password"
+        "domain.UserRole": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "appuser"
             ],
+            "x-enum-varnames": [
+                "Admin",
+                "AppUser"
+            ]
+        },
+        "http.DeleteUserResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.GetUserResponse": {
+            "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -295,32 +296,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 2
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 },
                 "role": {
-                    "$ref": "#/definitions/domain.UserRole"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
                 }
             }
-        },
-        "domain.UserRole": {
-            "type": "string",
-            "enum": [
-                "admin",
-                "appuser"
-            ],
-            "x-enum-varnames": [
-                "Admin",
-                "AppUser"
-            ]
         },
         "http.LoginRequest": {
             "type": "object",
@@ -336,6 +320,37 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "password123"
+                }
+            }
+        },
+        "http.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/http.UserInfo"
+                }
+            }
+        },
+        "http.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -357,6 +372,46 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "newpassword123"
+                }
+            }
+        },
+        "http.UpdateUserResponse": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.UserInfo": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/domain.UserRole"
                 }
             }
         },
@@ -397,22 +452,6 @@ const docTemplate = `{
                 "success": {
                     "type": "boolean",
                     "example": false
-                }
-            }
-        },
-        "http.successResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Success message"
-                },
-                "success": {
-                    "type": "boolean",
-                    "example": true
                 }
             }
         }

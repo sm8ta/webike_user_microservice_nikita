@@ -33,16 +33,37 @@ type UpdateUser struct {
 	Password    *string `json:"password,omitempty" example:"newpassword123"`
 }
 
-/*
-	type UserWithBikesResponse struct {
-		ID          string                 `json:"id"`
-		Name        string                 `json:"name"`
-		Email       string                 `json:"email"`
-		DateOfBirth string                 `json:"date_of_birth"`
-		CreatedAt   string                 `json:"created_at"`
-		Bikes       []*models.DomainBike   `json:"bikes"`
-	}
-*/
+type RegisterResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Token     string    `json:"token"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type GetUserResponse struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	DateOfBirth string    `json:"date_of_birth"`
+	Role        string    `json:"role"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type UpdateUserResponse struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	DateOfBirth string    `json:"date_of_birth"`
+	Role        string    `json:"role"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type DeleteUserResponse struct {
+	Message string `json:"message"`
+}
+
 func NewUserHandler(
 	userService *services.UserService,
 	logger ports.LoggerPort,
@@ -63,7 +84,7 @@ func NewUserHandler(
 // @Accept json
 // @Produce json
 // @Param request body UserRequest true "Данные пользователя"
-// @Success 201 {object} successResponse "Пользователь создан"
+// @Success 201 {object} RegisterResponse "Пользователь создан"
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 409 {object} errorResponse "Email уже существует"
 // @Router /register [post]
@@ -125,13 +146,15 @@ func (h *UserHandler) Register(c *gin.Context) {
 		"user_id": createdUser.ID,
 	})
 
-	newSuccessResponse(c, http.StatusCreated, "User created successfully", map[string]interface{}{
-		"id":         createdUser.ID,
-		"name":       createdUser.Name,
-		"email":      createdUser.Email,
-		"token":      token,
-		"created_at": createdUser.CreatedAt,
-	})
+	response := RegisterResponse{
+		ID:        createdUser.ID,
+		Name:      createdUser.Name,
+		Email:     createdUser.Email,
+		Token:     token,
+		CreatedAt: createdUser.CreatedAt,
+	}
+
+	c.JSON(http.StatusCreated, response)
 }
 
 // @Summary Получить пользователя
@@ -141,7 +164,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
-// @Success 200 {object} successResponse "Пользователь найден"
+// @Success 200 {object} GetUserResponse "Пользователь найден"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
 // @Failure 404 {object} errorResponse "Пользователь не найден"
@@ -183,9 +206,17 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 		newErrorResponse(c, http.StatusNotFound, "User not found")
 		return
 	}
+	response := GetUserResponse{
+		ID:          user.ID,
+		Name:        user.Name,
+		Email:       user.Email,
+		DateOfBirth: user.DateOfBirth,
+		Role:        string(user.Role),
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
 
-	user.Password = ""
-	newSuccessResponse(c, http.StatusOK, "User found", user)
+	c.JSON(http.StatusOK, response)
 }
 
 // @Summary Обновить пользователя
@@ -194,7 +225,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
 // @Param request body UpdateUser true "Данные для обновления"
-// @Success 200 {object} successResponse{data=domain.User} "Пользователь обновлен"
+// @Success 200 {object} UpdateUserResponse "Пользователь обновлен"
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
@@ -281,8 +312,16 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		"user_id": userID,
 	})
 
-	updatedUser.Password = ""
-	newSuccessResponse(c, http.StatusOK, "User updated successfully", updatedUser)
+	response := UpdateUserResponse{
+		ID:          updatedUser.ID,
+		Name:        updatedUser.Name,
+		Email:       updatedUser.Email,
+		DateOfBirth: updatedUser.DateOfBirth,
+		Role:        string(updatedUser.Role),
+		UpdatedAt:   updatedUser.UpdatedAt,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // @Summary Удалить пользователя
@@ -290,7 +329,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Tags users
 // @Security BearerAuth
 // @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
-// @Success 200 {object} successResponse "Пользователь удален"
+// @Success 200 {object} DeleteUserResponse "Пользователь удален"
 // @Failure 401 {object} errorResponse "Не авторизован"
 // @Failure 403 {object} errorResponse "Доступ запрещен"
 // @Router /users/{id} [delete]
@@ -335,20 +374,13 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 		"user_id": userID,
 	})
 
-	newSuccessResponse(c, http.StatusOK, "User deleted successfully", nil)
+	c.JSON(http.StatusOK, DeleteUserResponse{
+		Message: "User deleted successfully",
+	})
 }
 
 /*
 
-// @Summary Получить пользователя с байками
-// @Description Получение информации о пользователе и его байках
-// @Tags users
-// @Security BearerAuth
-// @Param id path string true "ID юзера" example:"jdk2-fsjmk-daslkdo2-321md-jsnlaljdn"
-// @Success 200 {object} successResponse{data=UserWithBikesResponse}"Пользователь с байками"
-// @Failure 401 {object} errorResponse "Не авторизован"
-// @Failure 404 {object} errorResponse "Пользователь не найден"
-// @Router /users/{id}/with-bikes [get]
 func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 	start := time.Now()
 	defer func() {

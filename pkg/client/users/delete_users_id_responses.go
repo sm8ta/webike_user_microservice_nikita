@@ -59,7 +59,7 @@ DeleteUsersIDOK describes a response with status code 200, with default header v
 Пользователь удален
 */
 type DeleteUsersIDOK struct {
-	Payload *models.HTTPSuccessResponse
+	Payload *models.HTTPDeleteUserResponse
 }
 
 // IsSuccess returns true when this delete users Id o k response has a 2xx status code
@@ -102,13 +102,13 @@ func (o *DeleteUsersIDOK) String() string {
 	return fmt.Sprintf("[DELETE /users/{id}][%d] deleteUsersIdOK %s", 200, payload)
 }
 
-func (o *DeleteUsersIDOK) GetPayload() *models.HTTPSuccessResponse {
+func (o *DeleteUsersIDOK) GetPayload() *models.HTTPDeleteUserResponse {
 	return o.Payload
 }
 
 func (o *DeleteUsersIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.HTTPSuccessResponse)
+	o.Payload = new(models.HTTPDeleteUserResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {

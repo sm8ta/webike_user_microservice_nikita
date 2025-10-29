@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 )
 

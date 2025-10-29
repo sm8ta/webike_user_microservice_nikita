@@ -3,11 +3,24 @@ package http
 import (
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/domain"
 	"github.com/sm8ta/webike_user_microservice_nikita/internal/core/ports"
 
 	"github.com/gin-gonic/gin"
 )
 
+type LoginResponse struct {
+	Token string   `json:"token"`
+	User  UserInfo `json:"user"`
+}
+type UserInfo struct {
+	ID    uuid.UUID       `json:"id"`
+	Email string          `json:"email"`
+	Name  string          `json:"name"`
+	Role  domain.UserRole `json:"role"`
+}
 type AuthHandler struct {
 	authService ports.AuthService
 	logger      ports.LoggerPort
@@ -37,7 +50,7 @@ func NewAuthHandler(
 // @Accept json
 // @Produce json
 // @Param request body LoginRequest true "Данные для входа"
-// @Success 200 {object} successResponse "Успешная авторизация"
+// @Success 200 {object} LoginResponse "Успешная авторизация"
 // @Failure 400 {object} errorResponse "Неверный запрос"
 // @Failure 401 {object} errorResponse "Неверные учетные данные"
 // @Router /login [post]
@@ -74,13 +87,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"user_id": user.ID,
 	})
 
-	newSuccessResponse(c, http.StatusOK, "Login successful", map[string]interface{}{
-		"token": token,
-		"user": map[string]interface{}{
-			"id":    user.ID,
-			"email": user.Email,
-			"name":  user.Name,
-			"role":  user.Role,
+	response := LoginResponse{
+		Token: token,
+		User: UserInfo{
+			ID:    user.ID,
+			Email: user.Email,
+			Name:  user.Name,
+			Role:  user.Role,
 		},
-	})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

@@ -90,11 +90,10 @@ func main() {
 	// Observability
 	metrics := prometheus.NewPrometheusAdapter()
 
-	/*
-		// User service client init
-		transport := httptransport.New(cfg.BikeService.URL, "", []string{"http"})
-		bikeClient := bike_client.New(transport, strfmt.Default)
-	*/
+	// User service client init
+	//transport := httptransport.New(cfg.BikeService.URL, "", []string{"http"})
+	//bikeClient := bike_client.New(transport, strfmt.Default)
+
 	// User
 	userRepo := repository.NewUserRepository(db)
 	tokenService := handlers.NewJWTTokenService(cfg.Token.Secret, cfg.Token.Duration, loggerAdapter)

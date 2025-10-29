@@ -59,7 +59,7 @@ PostLoginOK describes a response with status code 200, with default header value
 Успешная авторизация
 */
 type PostLoginOK struct {
-	Payload *models.HTTPSuccessResponse
+	Payload *models.HTTPLoginResponse
 }
 
 // IsSuccess returns true when this post login o k response has a 2xx status code
@@ -102,13 +102,13 @@ func (o *PostLoginOK) String() string {
 	return fmt.Sprintf("[POST /login][%d] postLoginOK %s", 200, payload)
 }
 
-func (o *PostLoginOK) GetPayload() *models.HTTPSuccessResponse {
+func (o *PostLoginOK) GetPayload() *models.HTTPLoginResponse {
 	return o.Payload
 }
 
 func (o *PostLoginOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.HTTPSuccessResponse)
+	o.Payload = new(models.HTTPLoginResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
