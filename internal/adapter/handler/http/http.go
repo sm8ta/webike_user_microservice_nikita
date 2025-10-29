@@ -41,12 +41,20 @@ type UserDTO struct {
 	Email  string `json:"email" example:"ivan@example.com"`
 }
 
-type UserWithBikesResponse struct {
-	ID          string      `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
-	Name        string      `json:"name" example:"Иван Иванов"`
-	Email       string      `json:"email" example:"ivan@example.com"`
-	DateOfBirth string      `json:"date_of_birth" example:"1990-01-01"`
-	Bikes       interface{} `json:"bikes,omitempty"`
+type BikeData struct {
+	BikeID   string `json:"bike_id" example:"1c4c2c9f-b5af-4b25-9d9f-15ead914af66"`
+	BikeName string `json:"bike_name" example:"My Mountain Bike"`
+	Type     string `json:"type" example:"mtb"`
+	Model    string `json:"model" example:"Trek X-Caliber"`
+	Mileage  int    `json:"mileage" example:"1500"`
+}
+
+type UserWithBikesData struct {
+	ID          string     `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Name        string     `json:"name" example:"Иван Иванов"`
+	Email       string     `json:"email" example:"ivan@example.com"`
+	DateOfBirth string     `json:"date_of_birth" example:"1990-01-01"`
+	Bikes       []BikeData `json:"bikes,omitempty"`
 }
 
 func toUserDTO(user *domain.User) UserDTO {
@@ -415,23 +423,31 @@ func (h *UserHandler) GetUserWithBikes(c *gin.Context) {
 
 	bikesResp, err := h.bikeClient.Bikes.GetBikesMy(params, authInfo)
 
-	var bikes interface{}
+	var bikesData []BikeData
 	if err != nil {
 		h.logger.Warn("Failed to get bikes from Bike service", map[string]interface{}{
 			"error":   err.Error(),
 			"user_id": userID,
 		})
-		bikes = nil
+		bikesData = []BikeData{}
 	} else {
-		bikes = bikesResp.Payload
+		// Распаковываем Data (interface{}) в структуру BikeData
+		dataBytes, _ := json.Marshal(bikesResp.Payload.Data)
+		if err := json.Unmarshal(dataBytes, &bikesData); err != nil {
+			h.logger.Warn("Failed to parse bikes data", map[string]interface{}{
+				"error":   err.Error(),
+				"user_id": userID,
+			})
+			bikesData = []BikeData{}
+		}
 	}
 
-	response := UserWithBikesResponse{
+	response := UserWithBikesData{
 		ID:          user.ID.String(),
 		Name:        user.Name,
 		Email:       user.Email,
 		DateOfBirth: user.DateOfBirth,
-		Bikes:       bikes,
+		Bikes:       bikesData,
 	}
 
 	newSuccessResponse(c, http.StatusOK, "User with bikes found", response)
